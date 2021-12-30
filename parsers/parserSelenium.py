@@ -43,11 +43,22 @@ class RedditParser(SeleniumConf, SoupConverter, FileManager):
         """Метод чтобы открыть определённую страницу и сохранить её"""
 
         self.Driver.get(url)
+        self.Driver.refresh()
         time.sleep(5)
+        # self.Driver.execute_script("""
+        # var element = document.querySelector("div._1DK52RbaamLOWw5UPaht_S");
+        # if (element)
+        #     element.parentNode.removeChild(element);
+        # """)
         htmlPage = self.Driver.find_element(By.TAG_NAME, 'html')
-        for i in range(500):
+        for i in range(800):
+            time.sleep(0.11)
             htmlPage.send_keys(Keys.DOWN)
-        time.sleep(15)
+        time.sleep(20)
+        for i in range(800):
+            time.sleep(0.11)
+            htmlPage.send_keys(Keys.UP)
+        time.sleep(5)
         self.save(filePath, encoding, "w", self.Driver.page_source)
         self.closeAndQuit()
         print(f"Страница сохранена в файл {filePath}")

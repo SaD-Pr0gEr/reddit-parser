@@ -68,7 +68,6 @@ class ExcelManager(FileManager):
                 self.sheet[row][1].value = data['photoLink']
                 self.sheet[row][2].value = data['title']
             except Exception as e:
-                print(e)
                 self.sheet[row][0].value = data['link']
                 self.sheet[row][2].value = data['title']
             row += 1

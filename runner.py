@@ -23,7 +23,7 @@ class Runner(RedditParser, ParsePostLinks):
         soup = self.parseData(htmlPath, 'r', 'utf-8')
         self.dataList = self.parseLinks(soup)
         fileNameExcel = input('Вводите название excel файла(на латинице): ')
-        urlList = (urls.get('photoLink') for urls in self.dataList[10:14])
+        urlList = (urls.get('photoLink') for urls in self.dataList)
         initedExcelManager.insertData(self.dataList, './data', fileNameExcel)
         classPhotoDownloader.download(self, './photos', urlList, initedRequestSender)
         print("Данные сохранены и скачаны успешно! Программа завершила работу!")
