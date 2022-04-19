@@ -1,37 +1,24 @@
-from parsers.parserBS4 import RequestSender
+import urllib3
+from PIL import Image
+from urllib3.exceptions import InsecureRequestWarning
+
 from utils.file_managers import FileManager
-import datetime
+from utils.request_manager import RequestManager
 
 
-class PhotoDownloader:
-    """Класс для загрузки фото"""
+class PhotoManager(RequestManager, FileManager):
+    """Загрузчик фото"""
+
+    def download_photo(self, link: str, file_path: str, headers: dict = None, verify: bool = False) -> None:
+        """Метод для скачивания и сохранения фото"""
+
+        urllib3.disable_warnings(InsecureRequestWarning)
+        self.save_byte_file(file_path, self.get(link, headers=headers, verify=verify).content)
 
     @staticmethod
-    def download(saveClass: FileManager, path, urlList, initedRequestSender: RequestSender):
-        """Метод для загрузки фото"""
+    def get_photo_sizes(photo_path: str):
+        """Метод который вернёт ширину и высоту фото"""
 
-        for url in urlList:
-            if url:
-                photoFormat = saveClass.fileFormatFromUrl(url)
-                photoName = saveClass.fileNameFromUrl(url)
-                response = initedRequestSender.get(url)
-                BasePath = f"{path}/{str(datetime.datetime.today()).split(' ')[0]}"
-                saveClass.checkFilePath(BasePath)
-                saveClass.save(
-                    f"{BasePath}/{photoName}.{photoFormat}",
-                    None,
-                    "wb",
-                    response.content
-                )
-        print("Фото сохранено успешно!")
-        return True
-
-
-if __name__ == "__main__":
-    d = PhotoDownloader()
-    d.download(
-        FileManager(),
-        '../photos',
-        ["https://preview.redd.it/c1dexb6xg6881.jpg?width=640&crop=smart&auto=webp&s=8a84e5092d8490f6c1130c54f925bf2d026e13e0"],
-        RequestSender()
-    )
+        with Image.open(photo_path) as img:
+            width, height = img.size
+        return width, height

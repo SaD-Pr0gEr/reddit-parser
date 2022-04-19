@@ -1,92 +1,53 @@
 import os
-from datetime import datetime
-import openpyxl as excel
+
+from openpyxl import Workbook
 
 
 class FileManager:
-    """Класс файловый менеджер"""
+    """Файловый менеджер"""
 
     @staticmethod
-    def reader(filePath, mode, encoding):
-        """Метод для чтение файла"""
+    def get_directory_or_create(directory_path: str) -> None:
+        if not os.path.exists(directory_path):
+            os.mkdir(directory_path)
 
-        with open(filePath, mode, encoding=encoding) as file:
+    @staticmethod
+    def save_file(file_path: str, write_mode: str, encoding: str, content: str):
+        with open(file_path, write_mode, encoding=encoding) as file:
+            file.write(content)
+
+    @staticmethod
+    def save_byte_file(file_path: str, content: bytes):
+        with open(file_path, "wb") as file:
+            file.write(content)
+
+    @staticmethod
+    def read_file(file_path: str, read_mode: str, encoding: str):
+        with open(file_path, read_mode, encoding=encoding) as file:
             read = file.read()
-            return read
-
-    @staticmethod
-    def save(filePath, encoding, mode, content):
-        """Метод для сохранение файла"""
-
-        if mode == "w":
-            with open(filePath, mode, encoding=encoding) as file:
-                file.write(content)
-        else:
-            with open(filePath, mode) as file:
-                file.write(content)
-        return filePath
-
-    @staticmethod
-    def fileFormatFromUrl(url: str):
-        fileFormat = url.split("?")[0].split('/')[-1].split('.')[-1]
-        return fileFormat
-
-    @staticmethod
-    def fileNameFromUrl(url: str):
-        fileName = url.split("?")[0].split('/')[-1].split('.')[0]
-        return fileName
-
-    @staticmethod
-    def checkFilePath(filePath):
-        """Метод для проверки пути для файла excel"""
-
-        if not os.path.exists(filePath):
-            os.mkdir(filePath)
+        return read
 
 
-class ExcelManager(FileManager):
-    """Менеджер для работы с excel файлами"""
+class ExcelManager(Workbook):
+    """Менеджер работы с excel"""
 
-    def __init__(self, colCoordinates: dict):
-        self.book = excel.Workbook()
-        self.sheet = self.book.active
-        self.__configureColumns(colCoordinates)
+    def __init__(self, coordinates: dict) -> None:
+        super(ExcelManager, self).__init__()
+        self.sheet = self.active
+        self.__configure_columns(coordinates)
 
-    def __configureColumns(self, params: dict):
-        """Метод для конфигуриации столбцов"""
+    def __configure_columns(self, coordinates: dict) -> None:
+        """Метод для конфигуриации ячеек"""
 
-        for column, value in params.items():
+        for column, value in coordinates.items():
             self.sheet[column] = value
 
-    def insertData(self, dataList: list, filePath, fileName):
-        """Метод для добавления данных"""
+    def insert_data(self, data_list: str, file_path: str) -> None:
+        """Метод добавления данных"""
+        pass
 
-        row = 2
-        for data in dataList:
-            try:
-                self.sheet[row][0].value = data['link']
-                self.sheet[row][1].value = data['photoLink']
-                self.sheet[row][2].value = data['title']
-            except Exception as e:
-                self.sheet[row][0].value = data['link']
-                self.sheet[row][2].value = data['title']
-            row += 1
-        self.checkFilePath(filePath)
-        self.__saveAndClose(filePath, fileName)
-        print("Данные успешно записаны!")
+    def save_and_close(self, file_path: str) -> None:
+        """Метод для сохранения и выхода с файла"""
 
-    def __saveAndClose(self, filePath, fileName):
-        """Метод для сохранения файла"""
-
-        Path = f"{filePath}/{fileName.replace(' ', '-')}-{str(datetime.today()).replace(' ', '-').replace(':', '-').replace('.', '-')}"
-        self.book.save(f"{Path}.xlsx")
-        self.book.close()
-        print(f"Файл сохранён. \n Путь до файла: {Path}.xlsx")
-
-
-if __name__ == "__main__":
-    manager = FileManager().fileFormatFromUrl("https://preview.redd.it/mftffghp47881.jpg?width=320&crop=smart&auto=webp&s=04f4e362c4ea0441c137bb933b13967b26319970")
-    manager2 = FileManager().fileNameFromUrl("https://preview.redd.it/wz8jo3qp47881.jpg?width=320&crop=smart&auto=webp&s=967d6fedad0e9fd1734838400755ba212a07c913")
-
-    excelManager = ExcelManager({"A1": "test", "B1": "test2"})
-    excelManager.insertData([{"test": "test", 'test2': "test2"}], '../data', "test")
+        self.save(file_path)
+        self.close()

@@ -3,16 +3,6 @@ from bs4 import BeautifulSoup
 from utils.file_managers import FileManager
 
 
-class RequestSender:
-    """Класс для отправки запросов"""
-
-    @staticmethod
-    def get(url):
-        """Метод для отправки get запроса"""
-        response = requests.get(url)
-        return response if int(response.status_code) == 200 else None
-
-
 class SoupConverter:
     """Класс для конвертации html в объект soup"""
 
